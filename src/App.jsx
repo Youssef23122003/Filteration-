@@ -149,7 +149,7 @@ function App() {
 
   return (
     <>
-      <div className="h-screen bg-cover bg- flex items-center justify-center" style={{ backgroundImage: `url(${img})` }}>
+      <div className="h-screen bg-cover bg-top flex items-center justify-center" style={{ backgroundImage: `url(${img})` }}>
         <div className="bg-transparent border-white border rounded-2xl p-6 w-full max-w-2xl relative">
 
           {/* Search + Add Button */}
