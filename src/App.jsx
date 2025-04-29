@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FaEdit, FaTrash } from 'react-icons/fa';
+import { FaEdit, FaTrash,FaEye} from 'react-icons/fa';
 import { IoMdAdd } from 'react-icons/io';
 import './index.css';
 import img from './assets/462454492340254fb07483122ff40273dfb2a410.jpg';
@@ -11,11 +11,15 @@ import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isUserDataOpen, setUserDataOpen] = useState(false);
+  const [userData,setUserData] = useState(null)
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [editUser, setEditUser] = useState(null);
+  const [loadingUser, setLoadingUser] = useState(false);
+
 
   const handleOpenModal = () => {
     setIsOpen(true);
@@ -26,6 +30,26 @@ function App() {
     setEditUser(null);
     formik.resetForm();
   };
+
+  const handleOpenedData = ()=>{
+    setUserDataOpen(true)
+  }
+  const handleClosedData = ()=>{
+    setUserDataOpen(false)
+  }
+
+  const getUserData = async (id) =>{
+    setLoadingUser(true);
+    handleOpenedData()
+    const response = await axios.get(`https://dummyapi.io/data/v1/user/${id}`,{ headers: {
+      'Content-Type': 'application/json',
+      'app-id': '64fc4a747b1786417e354f31',
+     }})
+    console.log(response.data);
+    setUserData(response.data)
+    console.log(userData);
+    setLoadingUser(false);
+  }
 
   const fetchData = async () => {
     try {
@@ -149,7 +173,7 @@ function App() {
 
   return (
     <>
-      <div className="h-screen bg-cover bg-top flex items-center justify-center" style={{ backgroundImage: `url(${img})` }}>
+      <div className="h-screen bg-cover bg- flex items-center justify-center" style={{ backgroundImage: `url(${img})` }}>
         <div className="bg-transparent border-white border rounded-2xl p-6 w-full max-w-2xl relative">
 
           {/* Search + Add Button */}
@@ -186,6 +210,9 @@ function App() {
                   </div>
                 </div>
                 <div className="flex space-x-2">
+                  <button onClick={()=>getUserData(user.id)}   className="p-2 bg-sky-500 hover:bg-black text-white rounded-full">
+                    <FaEye />
+                  </button>
                   <button
                     onClick={() => handleUpdateClick(user)}
                     className="p-2 bg-green-500 hover:bg-green-600 text-white rounded-full"
@@ -198,6 +225,7 @@ function App() {
                   >
                     <FaTrash />
                   </button>
+                  
                 </div>
               </div>
             ))}
@@ -221,6 +249,7 @@ function App() {
             </button>
           </div>
         </div>
+        
 
         {/* Modal */}
         {isOpen && (
@@ -306,7 +335,40 @@ function App() {
             </div>
           </div>
         )}
-      </div>
+        {isUserDataOpen &&(
+         <div className="fixed bg-black  bg-linear-90 inset-0 flex items-center justify-center z-50">
+           
+             <div className="mx-auto relative p-6 bg-white rounded-xl shadow-md text-center space-y-4">
+             <i onClick={()=>{handleClosedData()}} class="fa-solid fa-xmark absolute right-0 top-0 p-2"></i>
+             {loadingUser ? (
+        <div className="flex flex-col items-center justify-center py-10">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid"></div>
+          <p className="mt-4 text-gray-600">Loading user data...</p>
+        </div>
+      ) : (
+        <>
+          <img
+            src={userData?.picture}
+            alt="Profile"
+            className="w-24 h-24 mx-auto rounded-full object-cover mb-4"
+            onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/100'; }}
+          />
+          <h2 className="text-xl font-semibold">{userData?.firstName} {userData?.lastName}</h2>
+          <p className="text-gray-500 text-sm">ID: {userData?.id}</p>
+
+          <div className="text-left space-y-2 mt-4">
+            <p><span className="font-bold">📧 Email:</span> {userData?.email}</p>
+            <p><span className="font-bold">📞 Phone:</span> {userData?.phone}</p>
+            <p><span className="font-bold">🕒 Registered At:</span> {userData?.registerDate}</p>
+            <p><span className="font-bold">🛠 Last Updated:</span> {userData?.updatedDate}</p>
+          </div>
+        </>
+      )}
+            </div>
+         </div>)}
+</div>
+
+      
 
       {/* Toast Container */}
       <ToastContainer
