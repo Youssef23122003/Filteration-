@@ -181,7 +181,7 @@ function App() {
               placeholder="Search by Name"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 bg-white/80 p-3 rounded-full outline-none text-gray-800"
+              className="flex-1 bg-white p-3 rounded-full outline-none text-gray-800"
             />
             <button
               onClick={handleOpenModal}
