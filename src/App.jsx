@@ -16,7 +16,6 @@ function App() {
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
   const [editUser, setEditUser] = useState(null);
   const [loadingUser, setLoadingUser] = useState(false);
 
@@ -58,8 +57,7 @@ function App() {
           'app-id': '64fc4a747b1786417e354f31',
         },
         params: {
-          limit: 2,
-          page: currentPage,
+          limit: 50,
         },
       });
       setUsers(response.data.data);
@@ -71,7 +69,7 @@ function App() {
 
   useEffect(() => {
     fetchData();
-  }, [currentPage]);
+  }, []);
 
   useEffect(() => {
     if (searchQuery === '') {
@@ -174,7 +172,7 @@ function App() {
   return (
     <>
       <div className="h-screen bg-cover bg-top flex items-center justify-center" style={{ backgroundImage: `url(${img})` }}>
-        <div className="bg-transparent border-white border rounded-2xl p-6 w-full max-w-2xl relative">
+        <div className="bg-transparent border-white border rounded-2xl p-6 w-full max-w-2xl relative backdrop-blur-md bg-white/30 overflow-y-auto max-h-[80vh] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-sky-500 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar]:mr-2 pr-2">
 
           {/* Search + Add Button */}
           <div className="flex items-center mb-6">
@@ -183,7 +181,7 @@ function App() {
               placeholder="Search by Name"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 bg-white p-3 rounded-full outline-none text-gray-800"
+              className="flex-1 bg-white/80 p-3 rounded-full outline-none text-gray-800"
             />
             <button
               onClick={handleOpenModal}
@@ -197,7 +195,7 @@ function App() {
           {/* Contact List */}
           <div className="space-y-6">
             {filteredUsers.map((user) => (
-              <div className="flex items-center justify-between p-4 rounded-xl" key={user.id}>
+              <div className="flex items-center justify-between p-4 border-b border-white last:border-b-0" key={user.id}>
                 <div className="flex items-center space-x-4">
                   <img
                     src={user.picture}
@@ -229,24 +227,6 @@ function App() {
                 </div>
               </div>
             ))}
-          </div>
-
-          {/* Pagination Controls */}
-          <div className="flex justify-between mt-6 text-white">
-            <button
-              onClick={() => setCurrentPage(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="px-4 py-2 bg-blue-500 rounded-full hover:bg-blue-600 disabled:opacity-50"
-            >
-              Previous
-            </button>
-            <p>{currentPage}</p>
-            <button
-              onClick={() => setCurrentPage(currentPage + 1)}
-              className="px-4 py-2 bg-blue-500 rounded-full hover:bg-blue-600"
-            >
-              Next
-            </button>
           </div>
         </div>
         
