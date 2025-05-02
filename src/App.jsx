@@ -126,17 +126,51 @@ function App() {
       picture: '',
     },
     validationSchema: Yup.object({
-      firstName: Yup.string().required('First Name is required'),
-      lastName: Yup.string().required('Last Name is required'),
-      email: Yup.string().email('Invalid email').required('Email is required'),
-      phone: Yup.string().notRequired(),
-      picture: Yup.string().url('Must be a valid URL').required('Picture URL is required'),
+      firstName: Yup.string()
+        .required('First Name is required')
+        .min(2, 'First Name must be at least 2 characters')
+        .max(15, 'First Name must not exceed 15 characters')
+        .matches(/^[A-Za-z\s]*$/, 'First Name can only contain letters and spaces'),
+      lastName: Yup.string()
+        .required('Last Name is required')
+        .min(2, 'Last Name must be at least 2 characters')
+        .max(15, 'Last Name must not exceed 15 characters')
+        .matches(/^[A-Za-z\s]*$/, 'Last Name can only contain letters and spaces'),
+      email: Yup.string()
+        .email('Invalid email format')
+        .required('Email is required')
+        .matches(
+          /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+          'Invalid email format'
+        ),
+      phone: Yup.string()
+        .matches(
+          /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/,
+          'Invalid phone number format'
+        )
+        .notRequired(),
+      picture: Yup.string()
+        .url('Must be a valid URL')
+        .matches(
+          /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/,
+          'Invalid URL format'
+        )
+        .notRequired(),
     }),
     onSubmit: async (values, { resetForm, setSubmitting }) => {
       try {
+        const defaultImage = "https://media.istockphoto.com/id/1337144146/vector/default-avatar-profile-icon-vector.jpg?s=612x612&w=0&k=20&c=BIbFwuv7FxTWvh5S3vB6bkT0Qv8Vn8N5Ffseq84ClGI=";
+        const userData = {
+          firstName: values.firstName,
+          lastName: values.lastName,
+          email: values.email,
+          phone: values.phone || '',
+          picture: values.picture || defaultImage
+        };
+
         const response = await axios.post(
           'https://dummyapi.io/data/v1/user/create',
-          values,
+          userData,
           {
             headers: {
               'Content-Type': 'application/json',
@@ -172,8 +206,7 @@ function App() {
   return (
     <>
       <div className="h-screen bg-cover bg-top flex items-center justify-center" style={{ backgroundImage: `url(${img})` }}>
-        <div className="bg-transparent border-white border rounded-2xl p-6 w-full max-w-2xl relative backdrop-blur-md bg-white/30">
-          {/* Search + Add Button */}
+        <div className="bg-white/30 border-white border rounded-2xl p-6 w-full max-w-2xl relative backdrop-blur-md">
           <div className="flex items-center mb-6">
             <input
               type="text"
@@ -191,7 +224,7 @@ function App() {
             </button>
           </div>
 
-          {/* Contact List */}
+          
           <div className="space-y-6 overflow-y-auto max-h-[60vh] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-sky-500 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar]:mr-2 pr-2">
             {filteredUsers.map((user) => (
               <div className="flex items-center justify-between p-4 border-b border-white last:border-b-0" key={user.id}>
@@ -203,7 +236,6 @@ function App() {
                   />
                   <div>
                     <h3 className="text-white font-semibold">{user.firstName} {user.lastName}</h3>
-                    <p className="text-gray-200 text-sm">{user.phone}</p>
                   </div>
                 </div>
                 <div className="flex space-x-2">
@@ -222,7 +254,6 @@ function App() {
                   >
                     <FaTrash />
                   </button>
-                  
                 </div>
               </div>
             ))}
@@ -244,55 +275,79 @@ function App() {
                   <p className="mt-4 text-gray-600 font-semibold">Enter Photo URL</p>
                 </div>
 
-                {/* Form Fields */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-                  <input
-                    type="text"
-                    name="firstName"
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    value={formik.values.firstName}
-                    placeholder="First Name"
-                    className="p-3 rounded-full bg-gray-100 outline-none"
-                  />
-                  <input
-                    type="text"
-                    name="lastName"
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    value={formik.values.lastName}
-                    placeholder="Last Name"
-                    className="p-3 rounded-full bg-gray-100 outline-none"
-                  />
-                  {!editUser && (
+                  <div>
                     <input
-                      type="email"
-                      name="email"
+                      type="text"
+                      name="firstName"
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
-                      value={formik.values.email}
-                      placeholder="Email"
-                      className="p-3 rounded-full bg-gray-100 outline-none"
+                      value={formik.values.firstName}
+                      placeholder="First Name"
+                      className={`p-3 rounded-full bg-gray-100 outline-none w-full ${formik.touched.firstName && formik.errors.firstName ? 'border-2 border-red-500' : ''}`}
                     />
+                    {formik.touched.firstName && formik.errors.firstName && (
+                      <div className="text-red-500 text-sm mt-1 ml-3">{formik.errors.firstName}</div>
+                    )}
+                  </div>
+                  <div>
+                    <input
+                      type="text"
+                      name="lastName"
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      value={formik.values.lastName}
+                      placeholder="Last Name"
+                      className={`p-3 rounded-full bg-gray-100 outline-none w-full ${formik.touched.lastName && formik.errors.lastName ? 'border-2 border-red-500' : ''}`}
+                    />
+                    {formik.touched.lastName && formik.errors.lastName && (
+                      <div className="text-red-500 text-sm mt-1 ml-3">{formik.errors.lastName}</div>
+                    )}
+                  </div>
+                  {!editUser && (
+                    <div>
+                      <input
+                        type="email"
+                        name="email"
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        value={formik.values.email}
+                        placeholder="Email"
+                        className={`p-3 rounded-full bg-gray-100 outline-none w-full ${formik.touched.email && formik.errors.email ? 'border-2 border-red-500' : ''}`}
+                      />
+                      {formik.touched.email && formik.errors.email && (
+                        <div className="text-red-500 text-sm mt-1 ml-3">{formik.errors.email}</div>
+                      )}
+                    </div>
                   )}
-                  <input
-                    type="text"
-                    name="phone"
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    value={formik.values.phone}
-                    placeholder="Phone Number"
-                    className="p-3 rounded-full bg-gray-100 outline-none"
-                  />
-                  <input
-                    type="text"
-                    name="picture"
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    value={formik.values.picture}
-                    placeholder="Picture URL"
-                    className="p-3 rounded-full bg-gray-100 outline-none"
-                  />
+                  <div>
+                    <input
+                      type="text"
+                      name="phone"
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      value={formik.values.phone}
+                      placeholder="Phone Number"
+                      className={`p-3 rounded-full bg-gray-100 outline-none w-full ${formik.touched.phone && formik.errors.phone ? 'border-2 border-red-500' : ''}`}
+                    />
+                    {formik.touched.phone && formik.errors.phone && (
+                      <div className="text-red-500 text-sm mt-1 ml-3">{formik.errors.phone}</div>
+                    )}
+                  </div>
+                  <div>
+                    <input
+                      type="text"
+                      name="picture"
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      value={formik.values.picture}
+                      placeholder="Picture URL"
+                      className={`p-3 rounded-full bg-gray-100 outline-none w-full ${formik.touched.picture && formik.errors.picture ? 'border-2 border-red-500' : ''}`}
+                    />
+                    {formik.touched.picture && formik.errors.picture && (
+                      <div className="text-red-500 text-sm mt-1 ml-3">{formik.errors.picture}</div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Buttons */}
@@ -349,7 +404,7 @@ function App() {
 
       
 
-      {/* Toast Container */}
+
       <ToastContainer
         position="top-right"
         autoClose={3000}
