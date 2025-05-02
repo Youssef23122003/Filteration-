@@ -172,8 +172,7 @@ function App() {
   return (
     <>
       <div className="h-screen bg-cover bg-top flex items-center justify-center" style={{ backgroundImage: `url(${img})` }}>
-        <div className="bg-transparent border-white border rounded-2xl p-6 w-full max-w-2xl relative backdrop-blur-md bg-white/30 overflow-y-auto max-h-[80vh] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-sky-500 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar]:mr-2 pr-2">
-
+        <div className="bg-transparent border-white border rounded-2xl p-6 w-full max-w-2xl relative backdrop-blur-md bg-white/30">
           {/* Search + Add Button */}
           <div className="flex items-center mb-6">
             <input
@@ -193,7 +192,7 @@ function App() {
           </div>
 
           {/* Contact List */}
-          <div className="space-y-6">
+          <div className="space-y-6 overflow-y-auto max-h-[60vh] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-sky-500 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar]:mr-2 pr-2">
             {filteredUsers.map((user) => (
               <div className="flex items-center justify-between p-4 border-b border-white last:border-b-0" key={user.id}>
                 <div className="flex items-center space-x-4">
